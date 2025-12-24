@@ -3,6 +3,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     app_name: str
+    docs_url: str
+    openapi_url: str
     debug: bool = False
 
     db_host: str
@@ -10,6 +12,9 @@ class Settings(BaseSettings):
     db_name: str
     db_user: str
     db_password: str
+
+    secret_key: str
+    access_token_expire_minutes: int = 60
 
     model_config = SettingsConfigDict(
         env_file=".env",
