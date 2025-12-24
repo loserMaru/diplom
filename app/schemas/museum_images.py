@@ -17,7 +17,7 @@ class MuseumImageUpdate(BaseModel):
     museum_id: int
 
 
-class MuseumImagePublic(BaseModel):
+class MuseumImagePublic(MuseumImageBase):
     id: int
 
     class Config:
