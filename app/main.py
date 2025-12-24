@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.api.v1.router import api_router
 from app.db.base import Base
 from app.db.session import engine
 from app.db.init_db import init_models
@@ -17,4 +18,6 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title=settings.app_name, lifespan=lifespan)
+app = FastAPI(title=settings.app_name, lifespan=lifespan, docs_url=settings.docs_url)
+
+app.include_router(router=api_router)
