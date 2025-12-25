@@ -14,7 +14,7 @@ class MuseumImageCreate(MuseumImageBase):
 class MuseumImageUpdate(BaseModel):
     image_url: str | None = None
     position: int | None = None
-    museum_id: int
+    museum_id: int | None = None
 
 
 class MuseumImagePublic(MuseumImageBase):
