@@ -16,3 +16,8 @@ class Museum(Base):
         cascade="all, delete-orphan",
         order_by="MuseumImage.position"
     )
+
+    exhibits: Mapped[list["Exhibit"]] = relationship(
+        back_populates="museum",
+        cascade="all, delete-orphan",
+    )
