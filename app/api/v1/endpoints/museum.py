@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.api.v1.deps import get_db
-from app.crud.base import create_with_relations
+from app.crud.base import create_with_relations, get_list
 from app.models.exhibit import Exhibit
 from app.models.museum import Museum
 from app.schemas.museum import MuseumCreate, MuseumPublic
@@ -27,14 +27,13 @@ async def create_museum(
 
 @router.get("/", response_model=list[MuseumPublic])
 async def get_museums(db: AsyncSession = Depends(get_db), skip: int = 0, limit: int = 100):
-    stmt = (
-        select(Museum)
-        .offset(skip)
-        .limit(limit)
-        .options(
+    return await get_list(
+        db=db,
+        model=Museum,
+        skip=skip,
+        limit=limit,
+        options=[
             selectinload(Museum.images),
-            selectinload(Museum.exhibits).selectinload(Exhibit.images),
-        )
+            selectinload(Museum.exhibits).selectinload(Exhibit.images)
+        ],
     )
-    result = await db.execute(stmt)
-    return result.scalars().all()
