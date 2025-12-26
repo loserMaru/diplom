@@ -32,7 +32,7 @@ def create_access_token(subject: str, expires_delta: timedelta | None = None, ) 
 
     encoded_jwt = jwt.encode(
         to_encode,
-        settings.SECRET_KEY,
+        settings.secret_key,
         algorithm=ALGORITHM,
     )
     return encoded_jwt
