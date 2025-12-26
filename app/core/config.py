@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -16,6 +18,11 @@ class Settings(BaseSettings):
     secret_key: str
     access_token_expire_minutes: int = 60
 
+    max_image_size_mb: int
+    image_allowed_types: str
+
+    base_dir: Path = Path(__file__).resolve().parent.parent.parent
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -31,3 +38,6 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+MAX_IMAGE_SIZE = settings.max_image_size_mb * 1024 * 1024
+ALLOWED_IMAGE_TYPES = set(settings.image_allowed_types.split(","))
