@@ -22,3 +22,12 @@ class MuseumImagePublic(MuseumImageBase):
 
     class Config:
         from_attributes = True
+
+
+class MuseumImageForMuseum(BaseModel):
+    id: int
+    image_url: str
+    position: int
+
+    class Config:
+        from_attributes = True
