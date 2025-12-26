@@ -1,7 +1,8 @@
 from pydantic import BaseModel
 
 from app.schemas.exhibit import ExhibitPublic
-from app.schemas.museum_images import MuseumImagePublic
+from app.schemas.museum_images import MuseumImageForMuseum
+from app.schemas.shared import ExhibitForMuseum
 
 
 class MuseumBase(BaseModel):
@@ -20,8 +21,8 @@ class MuseumUpdate(BaseModel):
 
 class MuseumPublic(MuseumBase):
     id: int
-    images: list[MuseumImagePublic]
-    exhibits: list[ExhibitPublic]
+    images: list[MuseumImageForMuseum]
+    exhibits: list[ExhibitForMuseum]
 
     class Config:
         from_attributes = True
