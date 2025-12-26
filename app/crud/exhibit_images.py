@@ -1,37 +1,33 @@
-import uuid
 from pathlib import Path
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import UploadFile
 
 from app.models.exhibit_images import ExhibitImage
+from app.utils.file_storage import save_upload_file
+from app.crud.image_base import create_image
 
-IMAGES_ROOT = Path("static/images/exhibits")
+EXHIBIT_IMAGES_ROOT = Path("static/images/exhibits")
 
 
 async def create_exhibit_image(
         *,
-        db,
+        db: AsyncSession,
         exhibit_id: int,
-        file,
+        file: UploadFile,
         position: int,
 ) -> ExhibitImage:
-    ext = Path(file.filename).suffix
-    filename = f"{uuid.uuid4()}{ext}"
-
-    exhibit_dir = IMAGES_ROOT / str(exhibit_id)
-    exhibit_dir.mkdir(parents=True, exist_ok=True)
-
-    file_path = exhibit_dir / filename
-
-    with open(file_path, "wb") as buffer:
-        buffer.write(await file.read())
-
-    image = ExhibitImage(
-        exhibit_id=exhibit_id,
-        image_url=f"/static/images/exhibits/{exhibit_id}/{filename}",
-        position=position,
+    image_url = await save_upload_file(
+        file=file,
+        base_dir=EXHIBIT_IMAGES_ROOT,
+        sub_dir=str(exhibit_id),
+        public_prefix="/static/images/exhibits",
     )
 
-    db.add(image)
-    await db.commit()
-    await db.refresh(image)
-
-    return image
+    return await create_image(
+        db=db,
+        model=ExhibitImage,
+        owner_field="exhibit_id",
+        owner_id=exhibit_id,
+        image_url=image_url,
+        position=position,
+    )

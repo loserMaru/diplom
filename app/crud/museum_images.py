@@ -1,37 +1,33 @@
-import uuid
 from pathlib import Path
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import UploadFile
 
 from app.models.museum_images import MuseumImage
+from app.utils.file_storage import save_upload_file
+from app.crud.image_base import create_image
 
-IMAGES_ROOT = Path("static/images/museums")
+MUSEUM_IMAGES_ROOT = Path("static/images/museums")
 
 
 async def create_museum_image(
         *,
-        db,
+        db: AsyncSession,
         museum_id: int,
-        file,
+        file: UploadFile,
         position: int,
 ) -> MuseumImage:
-    ext = Path(file.filename).suffix
-    filename = f"{uuid.uuid4()}{ext}"
-
-    museum_dir = IMAGES_ROOT / str(museum_id)
-    museum_dir.mkdir(parents=True, exist_ok=True)
-
-    file_path = museum_dir / filename
-
-    with open(file_path, "wb") as buffer:
-        buffer.write(await file.read())
-
-    image = MuseumImage(
-        museum_id=museum_id,
-        image_url=f"/static/images/museums/{museum_id}/{filename}",
-        position=position,
+    image_url = await save_upload_file(
+        file=file,
+        base_dir=MUSEUM_IMAGES_ROOT,
+        sub_dir=str(museum_id),
+        public_prefix="/static/images/museums",
     )
 
-    db.add(image)
-    await db.commit()
-    await db.refresh(image)
-
-    return image
+    return await create_image(
+        db=db,
+        model=MuseumImage,
+        owner_field="museum_id",
+        owner_id=museum_id,
+        image_url=image_url,
+        position=position,
+    )
