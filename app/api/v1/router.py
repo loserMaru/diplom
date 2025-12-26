@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import users, auth, museum, museum_images, exhibit
+from app.api.v1.endpoints import users, auth, museum, museum_images, exhibit, exhibit_images
 
 api_router = APIRouter()
 
@@ -9,4 +9,4 @@ api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
 api_router.include_router(museum.router, prefix="/museum", tags=["museum"])
 api_router.include_router(museum_images.router, prefix="/museum-images", tags=["Museum Images"])
 api_router.include_router(exhibit.router, prefix="/exhibit", tags=["Exhibit"])
-# api_router.include_router(exhibit_images.router, prefix="/exhibit-images", tags=["Exhibit Images"])
+api_router.include_router(exhibit_images.router, prefix="/exhibit-images", tags=["Exhibit Images"])
