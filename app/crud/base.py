@@ -2,7 +2,7 @@ from typing import Type, Any, TypeVar, Sequence
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import InstrumentedAttribute, selectinload, Load
+from sqlalchemy.orm import InstrumentedAttribute, selectinload
 
 
 async def create_with_relations(

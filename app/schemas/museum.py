@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 
-from app.schemas.exhibit import ExhibitPublic
 from app.schemas.museum_images import MuseumImageForMuseum
 from app.schemas.shared import ExhibitForMuseum
 

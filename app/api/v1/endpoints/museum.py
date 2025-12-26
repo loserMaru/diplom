@@ -1,5 +1,4 @@
 from fastapi import Depends, APIRouter
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
