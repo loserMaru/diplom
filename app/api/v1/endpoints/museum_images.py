@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Form, File, UploadFile, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
 
 from app.api.v1.deps import get_db
-from app.crud.museum_images import create_museum_image
+from app.crud.museum_images import create_museum_image, delete_museum_image
 from app.schemas.museum_images import MuseumImagePublic
 
 router = APIRouter()
@@ -21,3 +22,11 @@ async def upload_museum_image(
         file=file,
         position=position,
     )
+
+
+@router.delete("/{image_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_museum_image_endpoint(
+        image_id: int,
+        db: AsyncSession = Depends(get_db),
+):
+    await delete_museum_image(db=db, image_id=image_id)
