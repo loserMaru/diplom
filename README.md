@@ -1,1 +1,1 @@
-DIPLOM
+Museum Project for magister graduation
