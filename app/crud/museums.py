@@ -21,3 +21,8 @@ async def update_museum(
     await db.commit()
     await db.refresh(museum)
     return museum
+
+
+async def delete_museum(db: AsyncSession, museum: Museum) -> None:
+    await db.delete(museum)
+    await db.commit()
