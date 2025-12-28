@@ -19,11 +19,11 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 # JWT
-def create_access_token(subject: str, expires_delta: timedelta | None = None, ) -> str:
+def create_access_token(subject: str | int, expires_delta: timedelta | None = None, ) -> str:
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.utcnow() + timedelta(minutes=settings.access_token_expire_minutes)
 
     to_encode = {
         "exp": expire,

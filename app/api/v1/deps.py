@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from app.core.config import settings
+from app.core.security import ALGORITHM
 from app.db.session import AsyncSessionLocal
 from app.models.user import User
 
@@ -15,7 +16,7 @@ async def get_db():
         yield session
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 async def get_current_user(
@@ -32,20 +33,22 @@ async def get_current_user(
         payload = jwt.decode(
             token,
             settings.secret_key,
-            algorithms=["HS256"],
+            algorithms=[ALGORITHM],
         )
-        user_id: str | None = payload.get("sub")
-        if user_id is None:
+        sub = payload.get("sub")
+        if sub is None:
             raise credentials_exception
-    except JWTError:
+        user_id = int(sub)
+    except (JWTError, ValueError):
         raise credentials_exception
 
     result = await db.execute(
-        select(User).where(User.id == int(user_id))
+        select(User).where(User.id == user_id)
     )
     user = result.scalar_one_or_none()
 
-    if not user:
+    if user is None:
         raise credentials_exception
 
     return user
+
