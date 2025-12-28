@@ -24,3 +24,11 @@ async def update_exhibit(
     await db.commit()
     await db.refresh(exhibit)
     return exhibit
+
+
+async def delete_exhibit(
+        db: AsyncSession,
+        exhibit: Exhibit
+) -> None:
+    await db.delete(exhibit)
+    await db.commit()
