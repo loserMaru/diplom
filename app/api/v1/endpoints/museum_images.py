@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from app.api.v1.deps import get_db
+from app.crud.base import get_list
 from app.crud.museum_images import create_museum_image, delete_museum_image
 from app.models.museum import Museum
 from app.models.museum_images import MuseumImage
@@ -33,6 +34,20 @@ async def upload_museum_image(
         museum_id=museum_id,
         file=file,
         position=position,
+    )
+
+
+@router.get("/", response_model=list[MuseumImagePublic])
+async def get_museum_images(
+        db: AsyncSession = Depends(get_db),
+        skip: int = 0,
+        limit: int = 100,
+):
+    return await get_list(
+        db=db,
+        model=MuseumImage,
+        skip=skip,
+        limit=limit,
     )
 
 

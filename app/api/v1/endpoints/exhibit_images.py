@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from app.api.v1.deps import get_db
+from app.crud.base import get_list
 from app.crud.exhibit_images import create_exhibit_image, delete_exhibit_image
 from app.models.exhibit import Exhibit
 from app.models.exhibit_images import ExhibitImage
@@ -35,6 +36,19 @@ async def upload_exhibit_image(
         position=position,
     )
 
+
+@router.get("/", response_model=list[ExhibitImagePublic])
+async def get_exhibit_images(
+        db: AsyncSession = Depends(get_db),
+        skip: int = 0,
+        limit: int = 100,
+):
+    return await get_list(
+        db=db,
+        model=ExhibitImage,
+        skip=skip,
+        limit=limit,
+    )
 
 @router.delete("/{image_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_exhibit_image_endpoint(
