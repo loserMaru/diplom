@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from starlette import status
 
 from app.api.v1.deps import get_db
 from app.crud.base import create_with_relations, get_list
+from app.crud.exhibits import get_exhibit, update_exhibit
 from app.models.exhibit import Exhibit
-from app.schemas.exhibit import ExhibitPublic, ExhibitCreate
+from app.schemas.exhibit import ExhibitPublic, ExhibitCreate, ExhibitUpdate
 
 router = APIRouter()
 
@@ -39,3 +41,19 @@ async def get_exhibits(
             selectinload(Exhibit.museum),
         ]
     )
+
+
+@router.patch("/{exhibit_id}", response_model=ExhibitPublic)
+async def patch_exhibit(
+        exhibit_id: int,
+        data: ExhibitUpdate,
+        db: AsyncSession = Depends(get_db),
+):
+    exhibit = await get_exhibit(db, exhibit_id)
+    if not exhibit:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Exhibit not found",
+        )
+
+    return await update_exhibit(db, exhibit, data)
