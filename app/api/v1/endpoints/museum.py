@@ -5,6 +5,7 @@ from starlette import status
 
 from app.api.v1.deps import get_db
 from app.crud.base import create_with_relations, get_list
+from app.crud.museums import get_museum, update_museum, delete_museum
 from app.models.exhibit import Exhibit
 from app.models.museum import Museum
 from app.schemas.museum import MuseumCreate, MuseumPublic, MuseumUpdate
@@ -52,4 +53,20 @@ async def patch_museum(
             detail="Museum not found.",
         )
 
-    return await update_museum(db, museum, noticing=museum_in)
+    return await update_museum(db, museum, data=museum_in)
+
+
+@router.delete("/{museum_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def remove_museum(
+        museum_id: int,
+        db: AsyncSession = Depends(get_db),
+):
+    museum = await get_museum(db, museum_id)
+    if not museum:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Museum not found.",
+        )
+
+    return await delete_museum(db, museum)
+
