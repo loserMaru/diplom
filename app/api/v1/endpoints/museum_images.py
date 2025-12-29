@@ -4,11 +4,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from app.api.v1.deps import get_db
+from app.core.config import settings
 from app.crud.base import get_list
-from app.crud.museum_images import create_museum_image, delete_museum_image
 from app.models.museum import Museum
 from app.models.museum_images import MuseumImage
 from app.schemas.museum_images import MuseumImagePublic
+from app.services.image_storage import upload_image_to_supabase, delete_image_from_supabase
 
 router = APIRouter()
 
@@ -29,12 +30,24 @@ async def upload_museum_image(
             detail="Museum not found"
         )
 
-    return await create_museum_image(
-        db=db,
-        museum_id=museum_id,
+    image_url = await upload_image_to_supabase(
         file=file,
+        bucket=settings.supabase_bucket_museums,
+        folder=str(museum_id),
+    )
+
+    # Создаем запись в базе
+    image = MuseumImage(
+        museum_id=museum_id,
+        image_url=image_url,
         position=position,
     )
+
+    db.add(image)
+    await db.commit()
+    await db.refresh(image)
+
+    return image
 
 
 @router.get("/", response_model=list[MuseumImagePublic])
@@ -58,9 +71,14 @@ async def delete_museum_image_endpoint(
 ):
     image = await db.get(MuseumImage, image_id)
     if not image:
-        raise HTTPException(
-            status_code=404,
-            detail="Image not found"
-        )
+        raise HTTPException(status_code=404, detail="Image not found")
 
-    await delete_museum_image(db=db, image_id=image_id)
+    # Асинхронное удаление из Supabase
+    await delete_image_from_supabase(
+        image_url=image.image_url,
+        bucket=settings.supabase_bucket_museums
+    )
+
+    # Удаляем запись из базы
+    await db.delete(image)
+    await db.commit()

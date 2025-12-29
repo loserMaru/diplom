@@ -4,11 +4,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from app.api.v1.deps import get_db
+from app.core.config import settings
 from app.crud.base import get_list
-from app.crud.exhibit_images import create_exhibit_image, delete_exhibit_image
 from app.models.exhibit import Exhibit
 from app.models.exhibit_images import ExhibitImage
 from app.schemas.exhibit_image import ExhibitImagePublic
+from app.services.image_storage import upload_image_to_supabase, delete_image_from_supabase
 
 router = APIRouter()
 
@@ -29,12 +30,23 @@ async def upload_exhibit_image(
             detail="Exhibit not found"
         )
 
-    return await create_exhibit_image(
-        db=db,
-        exhibit_id=exhibit_id,
+    image_url = await upload_image_to_supabase(
         file=file,
+        bucket=settings.supabase_bucket_exhibits,
+        folder=str(exhibit_id),
+    )
+
+    image = ExhibitImage(
+        exhibit_id=exhibit_id,
+        image_url=image_url,
         position=position,
     )
+
+    db.add(image)
+    await db.commit()
+    await db.refresh(image)
+
+    return image
 
 
 @router.get("/", response_model=list[ExhibitImagePublic])
@@ -50,6 +62,7 @@ async def get_exhibit_images(
         limit=limit,
     )
 
+
 @router.delete("/{image_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_exhibit_image_endpoint(
         image_id: int,
@@ -57,9 +70,14 @@ async def delete_exhibit_image_endpoint(
 ):
     image = await db.get(ExhibitImage, image_id)
     if not image:
-        raise HTTPException(
-            status_code=404,
-            detail="Image not found"
-        )
+        raise HTTPException(status_code=404, detail="Image not found")
 
-    await delete_exhibit_image(db=db, image_id=image_id)
+    # Асинхронное удаление из Supabase
+    await delete_image_from_supabase(
+        image_url=image.image_url,
+        bucket=settings.supabase_bucket_exhibits
+    )
+
+    # Удаляем запись из базы
+    await db.delete(image)
+    await db.commit()
