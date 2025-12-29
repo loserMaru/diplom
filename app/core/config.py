@@ -21,6 +21,11 @@ class Settings(BaseSettings):
     max_image_size_mb: int
     image_allowed_types: str
 
+    supabase_url: str
+    supabase_service_role_key: str
+    supabase_bucket_museums: str
+    supabase_bucket_exhibits: str
+
     base_dir: Path = Path(__file__).resolve().parent.parent.parent
 
     model_config = SettingsConfigDict(
