@@ -21,7 +21,7 @@ async def create_exhibit(
         db=db,
         model=Exhibit,
         data=data,
-        load=Exhibit.images
+        load=[Exhibit.images, Exhibit.museum],
     )
 
 

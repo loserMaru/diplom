@@ -22,7 +22,7 @@ async def create_museum(
         db=db,
         model=Museum,
         data=data,
-        load=Museum.images,
+        load=[Museum.images, Museum.exhibits],
     )
 
 
