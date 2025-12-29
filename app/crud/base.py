@@ -10,21 +10,23 @@ async def create_with_relations(
         db: AsyncSession,
         model: Type[Any],
         data: Any,
-        load: InstrumentedAttribute | None = None,
+        load: list[InstrumentedAttribute] | None = None,
 ):
     obj = model(**data.model_dump())
     db.add(obj)
     await db.commit()
     await db.refresh(obj)
 
-    if load is None:
+    if not load:
         return obj
 
     stmt = (
         select(model)
         .where(model.id == obj.id)
-        .options(selectinload(load))
     )
+    for relation in load:
+        stmt = stmt.options(selectinload(relation))
+
     result = await db.execute(stmt)
     return result.scalar_one()
 
