@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from app.api.v1.deps import get_db
+from app.api.v1.deps import get_db, get_current_user
 from app.core.config import settings
 from app.crud.base import get_list
 from app.models.exhibit import Exhibit
@@ -11,7 +11,7 @@ from app.models.exhibit_images import ExhibitImage
 from app.schemas.exhibit_image import ExhibitImagePublic
 from app.services.image_storage import upload_image_to_supabase, delete_image_from_supabase
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
 @router.post("/", response_model=ExhibitImagePublic)

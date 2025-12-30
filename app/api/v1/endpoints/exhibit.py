@@ -3,13 +3,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from starlette import status
 
-from app.api.v1.deps import get_db
+from app.api.v1.deps import get_db, get_current_user
 from app.crud.base import create_with_relations, get_list
 from app.crud.exhibits import get_exhibit, update_exhibit, delete_exhibit
 from app.models.exhibit import Exhibit
 from app.schemas.exhibit import ExhibitPublic, ExhibitCreate, ExhibitUpdate
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
 @router.post("/", response_model=ExhibitPublic)

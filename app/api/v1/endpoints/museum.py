@@ -3,14 +3,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from starlette import status
 
-from app.api.v1.deps import get_db
+from app.api.v1.deps import get_db, get_current_user
 from app.crud.base import create_with_relations, get_list
 from app.crud.museums import get_museum, update_museum, delete_museum
 from app.models.exhibit import Exhibit
 from app.models.museum import Museum
 from app.schemas.museum import MuseumCreate, MuseumPublic, MuseumUpdate
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
 @router.post("/", response_model=MuseumPublic)
