@@ -2,6 +2,7 @@ from pydantic import BaseModel, EmailStr, ConfigDict
 
 class UserBase(BaseModel):
     email: EmailStr
+    role: str
 
 class UserCreate(UserBase):
     password: str
@@ -10,6 +11,7 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     email: EmailStr | None = None
     password: str | None = None
+    role: str | None = None
 
 
 class UserPublic(UserBase):
