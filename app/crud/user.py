@@ -23,6 +23,7 @@ async def create(
     user = User(
         email=str(data.email),
         password_hash=get_password_hash(data.password),
+        role=str(data.role)
     )
     db.add(user)
     await db.commit()
