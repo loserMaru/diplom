@@ -26,6 +26,8 @@ class Exhibit(Base):
         order_by="ExhibitImage.position"
     )
 
-    __table_args__ = (
-        UniqueConstraint("museum_id"),
+    models: Mapped[list["ExhibitModel"]] = relationship(
+        back_populates="exhibit",
+        cascade="all, delete-orphan",
+        order_by="ExhibitModel.position"
     )
