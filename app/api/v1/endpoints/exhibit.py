@@ -21,7 +21,7 @@ async def create_exhibit(
         db=db,
         model=Exhibit,
         data=data,
-        load=[Exhibit.images, Exhibit.museum],
+        load=[Exhibit.museum, Exhibit.images, Exhibit.models],
     )
 
 
@@ -39,6 +39,7 @@ async def get_exhibits(
         options=[
             selectinload(Exhibit.images),
             selectinload(Exhibit.museum),
+            selectinload(Exhibit.models),
         ]
     )
 
