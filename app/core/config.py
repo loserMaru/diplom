@@ -21,10 +21,15 @@ class Settings(BaseSettings):
     max_image_size_mb: int
     image_allowed_types: str
 
+    max_model_size_mb: int
+    model_allowed_types: str
+    model_allowed_mime_types: str
+
     supabase_url: str
     supabase_service_role_key: str
     supabase_bucket_museums: str
     supabase_bucket_exhibits: str
+    supabase_bucket_exhibit_models: str
 
     database_url_sync: str
 
