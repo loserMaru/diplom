@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 from app.schemas.exhibit_image import ExhibitImagePublic
+from app.schemas.exhibit_models import ExhibitModelPublic
 from app.schemas.shared import MuseumForExhibits
 
 
@@ -22,3 +23,4 @@ class ExhibitPublic(ExhibitBase):
     id: int
     museum: MuseumForExhibits
     images: list[ExhibitImagePublic]
+    models: list[ExhibitModelPublic]
