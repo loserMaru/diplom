@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     supabase_bucket_museums: str
     supabase_bucket_exhibits: str
 
+    database_url_sync: str
+
     base_dir: Path = Path(__file__).resolve().parent.parent.parent
 
     model_config = SettingsConfigDict(
