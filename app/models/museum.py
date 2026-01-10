@@ -11,6 +11,12 @@ class Museum(Base):
     name: Mapped[str] = mapped_column(String(255))
     description: Mapped[str] = mapped_column(String(255))
 
+    audios: Mapped[list["MuseumAudio"]] = relationship(
+        back_populates="museum",
+        cascade="all, delete-orphan",
+        order_by="MuseumAudio.position",
+    )
+
     images: Mapped[list["MuseumImage"]] = relationship(
         back_populates="museum",
         cascade="all, delete-orphan",
