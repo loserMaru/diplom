@@ -8,7 +8,7 @@ class MuseumImage(Base):
     __tablename__ = "museum_images"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    image_url: Mapped[str] = mapped_column(String(255), nullable=False)
+    image_url: Mapped[str] = mapped_column(String(512), nullable=False)
     position: Mapped[int] = mapped_column(Integer, nullable=False)
 
     museum_id: Mapped[int] = mapped_column(

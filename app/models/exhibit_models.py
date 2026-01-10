@@ -8,7 +8,7 @@ class ExhibitModel(Base):
     __tablename__ = 'exhibit_models'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    model_url: Mapped[str] = mapped_column(String(255), nullable=False)
+    model_url: Mapped[str] = mapped_column(String(512), nullable=False)
     position: Mapped[int] = mapped_column(Integer, nullable=False)
 
     exhibit_id: Mapped[int] = mapped_column(

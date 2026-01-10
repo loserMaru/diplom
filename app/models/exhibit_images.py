@@ -8,7 +8,7 @@ class ExhibitImage(Base):
     __tablename__ = "exhibit_images"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    image_url: Mapped[str] = mapped_column(String(255), nullable=False)
+    image_url: Mapped[str] = mapped_column(String(512), nullable=False)
     position: Mapped[int] = mapped_column(Integer, nullable=False)
 
     exhibit_id: Mapped[int] = mapped_column(
