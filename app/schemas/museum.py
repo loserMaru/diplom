@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+from app.schemas.museum_audios import MuseumAudioForMuseum
 from app.schemas.museum_images import MuseumImageForMuseum
 from app.schemas.shared import ExhibitForMuseum
 
@@ -20,6 +21,7 @@ class MuseumUpdate(BaseModel):
 
 class MuseumPublic(MuseumBase):
     id: int
+    audios: list[MuseumAudioForMuseum]
     images: list[MuseumImageForMuseum]
     exhibits: list[ExhibitForMuseum]
 
