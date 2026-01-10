@@ -22,7 +22,7 @@ async def create_museum(
         db=db,
         model=Museum,
         data=data,
-        load=[Museum.images, Museum.exhibits],
+        load=[Museum.audios, Museum.images, Museum.exhibits],
     )
 
 
@@ -34,6 +34,7 @@ async def get_museums(db: AsyncSession = Depends(get_db), skip: int = 0, limit: 
         skip=skip,
         limit=limit,
         options=[
+            selectinload(Museum.audios),
             selectinload(Museum.images),
             selectinload(Museum.exhibits).selectinload(Exhibit.images)
         ],
