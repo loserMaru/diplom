@@ -25,9 +25,14 @@ class Settings(BaseSettings):
     model_allowed_types: str
     model_allowed_mime_types: str
 
+    max_audio_size_mb: int
+    audio_allowed_types: str
+    audio_allowed_mime_types: str
+
     supabase_url: str
     supabase_service_role_key: str
     supabase_bucket_museums: str
+    supabase_bucket_museum_audios: str
     supabase_bucket_exhibits: str
     supabase_bucket_exhibit_models: str
 
