@@ -1,11 +1,11 @@
-from fastapi import Depends, APIRouter, HTTPException
+from fastapi import Depends, APIRouter, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from starlette import status
 
 from app.api.v1.deps import get_db, get_current_user
 from app.crud.base import create_with_relations, get_list
-from app.crud.museums import get_museum, update_museum, delete_museum
+from app.crud.museums import get_museum, update_museum, delete_museum, search_museums
 from app.models.exhibit import Exhibit
 from app.models.museum import Museum
 from app.schemas.museum import MuseumCreate, MuseumPublic, MuseumUpdate
@@ -27,17 +27,33 @@ async def create_museum(
 
 
 @router.get("/", response_model=list[MuseumPublic])
-async def get_museums(db: AsyncSession = Depends(get_db), skip: int = 0, limit: int = 100):
+async def get_museums(
+        db: AsyncSession = Depends(get_db),
+        skip: int = 0,
+        limit: int = 100,
+        q: str | None = Query(None, min_length=1),
+):
+    options = [
+        selectinload(Museum.audios),
+        selectinload(Museum.images),
+        selectinload(Museum.exhibits).selectinload(Exhibit.images),
+    ]
+
+    if q:
+        return await search_museums(
+            db=db,
+            query=q,
+            skip=skip,
+            limit=limit,
+            options=options,
+        )
+
     return await get_list(
         db=db,
         model=Museum,
         skip=skip,
         limit=limit,
-        options=[
-            selectinload(Museum.audios),
-            selectinload(Museum.images),
-            selectinload(Museum.exhibits).selectinload(Exhibit.images)
-        ],
+        options=options,
     )
 
 
