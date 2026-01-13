@@ -2,6 +2,7 @@
 from .museum import Museum
 from .museum_images import MuseumImage
 from .museum_audios import MuseumAudio
+from .museum_ratings import MuseumRating
 from .exhibit import Exhibit
 from .exhibit_images import ExhibitImage
 from .exhibit_models import ExhibitModel

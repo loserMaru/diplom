@@ -6,7 +6,7 @@ from app.models import (
     museum_images,
     exhibit,
     exhibit_images,
-    exhibit_models,
+    exhibit_models, museum_ratings,
 )
 
 
@@ -16,6 +16,7 @@ def init_models() -> None:
         museum,
         museum_audios,
         museum_images,
+        museum_ratings,
         exhibit,
         exhibit_images,
         exhibit_models,
