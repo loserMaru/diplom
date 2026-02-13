@@ -24,8 +24,10 @@ class MuseumPublic(MuseumBase):
     audios: list[MuseumAudioForMuseum]
     images: list[MuseumImageForMuseum]
     exhibits: list[ExhibitForMuseum]
+
     rating_avg: float
     rating_count: int
+    rating_distribution: dict[int, int]
 
     class Config:
         from_attributes = True
