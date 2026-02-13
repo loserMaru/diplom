@@ -5,7 +5,7 @@ from starlette import status
 
 from app.api.v1.deps import get_db, get_current_user
 from app.crud.base import create_with_relations, get_list
-from app.crud.museums import get_museum, update_museum, delete_museum, search_museums
+from app.crud.museums import get_museum, update_museum, delete_museum, search_museums, get_museums_rating_stats_bulk
 from app.models.exhibit import Exhibit
 from app.models.museum import Museum
 from app.schemas.museum import MuseumCreate, MuseumPublic, MuseumUpdate
@@ -40,21 +40,38 @@ async def get_museums(
     ]
 
     if q:
-        return await search_museums(
+        museums = await search_museums(
             db=db,
             query=q,
             skip=skip,
             limit=limit,
             options=options,
         )
+    else:
+        museums = await get_list(
+            db=db,
+            model=Museum,
+            skip=skip,
+            limit=limit,
+            options=options,
+        )
 
-    return await get_list(
-        db=db,
-        model=Museum,
-        skip=skip,
-        limit=limit,
-        options=options,
-    )
+    museum_ids = [m.id for m in museums]
+    stats_map = await get_museums_rating_stats_bulk(db, museum_ids)
+
+    for museum in museums:
+        stats = stats_map.get(museum.id)
+
+        if stats:
+            museum.rating_count = stats["rating_count"]
+            museum.rating_avg = stats["rating_avg"]
+            museum.rating_distribution = stats["rating_distribution"]
+        else:
+            museum.rating_count = 0
+            museum.rating_avg = 0.0
+            museum.rating_distribution = {i: 0 for i in range(1, 6)}
+
+    return museums
 
 
 @router.patch("/{museum_id}", response_model=MuseumPublic)
@@ -86,4 +103,3 @@ async def remove_museum(
         )
 
     return await delete_museum(db, museum)
-
