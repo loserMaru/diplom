@@ -8,13 +8,14 @@ from app.api.v1.endpoints import (
     exhibit_images,
     exhibit_models,
     museum_audios,
-    museum_ratings,
+    museum_ratings, user_profile,
 )
 
 api_router = APIRouter()
 
-api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
+api_router.include_router(users.router, prefix="/users", tags=["users"])
+api_router.include_router(user_profile.router, prefix="/user_profile", tags=["user_profile"])
 api_router.include_router(museum.router, prefix="/museum", tags=["museum"])
 api_router.include_router(museum_audios.router, prefix="/museum-audio", tags=["Museum Audios"])
 api_router.include_router(museum_images.router, prefix="/museum-images", tags=["Museum Images"])
