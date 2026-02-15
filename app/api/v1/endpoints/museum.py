@@ -1,4 +1,5 @@
 from fastapi import Depends, APIRouter, HTTPException, Query
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from starlette import status
@@ -6,9 +7,14 @@ from starlette import status
 from app.api.v1.deps import get_db, get_current_user
 from app.crud.base import create_with_relations, get_list
 from app.crud.museums import get_museum, update_museum, delete_museum, search_museums, get_museums_rating_stats_bulk
+from app.models import MuseumRating, User, UserProfile
 from app.models.exhibit import Exhibit
 from app.models.museum import Museum
-from app.schemas.museum import MuseumCreate, MuseumPublic, MuseumUpdate
+from app.schemas.museum import MuseumCreate, MuseumPublic, MuseumUpdate, MuseumSinglePublic
+from app.schemas.museum_audios import MuseumAudioForMuseum
+from app.schemas.museum_images import MuseumImageForMuseum
+from app.schemas.museum_ratings import MuseumRatingPublic
+from app.schemas.shared import ExhibitForMuseum
 
 router = APIRouter(dependencies=[Depends(get_current_user)])
 
@@ -103,3 +109,56 @@ async def remove_museum(
         )
 
     return await delete_museum(db, museum)
+
+
+@router.get("/{museum_id}", response_model=MuseumSinglePublic)
+async def get_museum_with_ratings(museum_id: int, db: AsyncSession = Depends(get_db)):
+    # Получаем музей с загрузкой аудио, изображений, экспонатов
+    result = await db.execute(
+        select(Museum)
+        .options(
+            selectinload(Museum.audios),
+            selectinload(Museum.images),
+            selectinload(Museum.exhibits).selectinload(Exhibit.images),
+        )
+        .where(Museum.id == museum_id)
+    )
+    museum: Museum | None = result.scalar_one_or_none()
+
+    if not museum:
+        raise HTTPException(status_code=404, detail="Museum not found")
+
+    # Получаем все рейтинги для музея вместе с именем и фамилией пользователя
+    result = await db.execute(
+        select(MuseumRating, UserProfile)
+        .join(User, MuseumRating.user_id == User.id)
+        .join(UserProfile, UserProfile.user_id == User.id)
+        .where(MuseumRating.museum_id == museum_id)
+    )
+
+    ratings: list[MuseumRatingPublic] = []
+    for rating, profile in result.all():
+        ratings.append(
+            MuseumRatingPublic(
+                id=rating.id,
+                rating=rating.rating,
+                comment=rating.comment,
+                museum_id=rating.museum_id,
+                first_name=profile.first_name,
+                last_name=profile.last_name,
+            )
+        )
+
+    # Формируем ответ
+    return MuseumSinglePublic(
+        id=museum.id,
+        name=museum.name,
+        description=museum.description,
+        audios=[MuseumAudioForMuseum.from_orm(audio) for audio in museum.audios],
+        images=[MuseumImageForMuseum.from_orm(img) for img in museum.images],
+        exhibits=[ExhibitForMuseum.from_orm(exh) for exh in museum.exhibits],
+        rating_avg=museum.rating_avg,
+        rating_count=museum.rating_count,
+        rating_distribution=getattr(museum, "rating_distribution", {i: 0 for i in range(1, 6)}),
+        ratings=ratings
+    )
