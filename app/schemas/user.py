@@ -1,8 +1,13 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
+
+from pydantic import BaseModel, EmailStr, field_serializer
+
 
 class UserBase(BaseModel):
     email: EmailStr
     role: str
+
 
 class UserCreate(UserBase):
     password: str
@@ -16,5 +21,13 @@ class UserUpdate(BaseModel):
 
 class UserPublic(UserBase):
     id: int
+    registered_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    @field_serializer("registered_at")
+    def serialize(self, value: datetime) -> str:
+        moscow = ZoneInfo("Europe/Moscow")
+
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+
+        return value.astimezone(moscow).strftime("%d.%m.%Y %H:%M:%S")
