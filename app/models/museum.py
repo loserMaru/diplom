@@ -29,3 +29,10 @@ class Museum(Base):
         back_populates="museum",
         cascade="all, delete-orphan",
     )
+
+    ratings: Mapped[list["MuseumRating"]] = relationship(
+        "MuseumRating",
+        back_populates="museum",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
