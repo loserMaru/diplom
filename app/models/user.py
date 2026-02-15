@@ -21,3 +21,5 @@ class User(Base, TimestampMixin):
         uselist=False,
         cascade="all, delete-orphan",
     )
+
+    ratings = relationship("MuseumRating", back_populates="user")
