@@ -7,6 +7,7 @@ from app.models import (
     exhibit,
     exhibit_images,
     exhibit_models, museum_ratings,
+    user_profile,
 )
 
 
@@ -20,4 +21,5 @@ def init_models() -> None:
         exhibit,
         exhibit_images,
         exhibit_models,
+        user_profile,
     )

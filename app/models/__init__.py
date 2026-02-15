@@ -7,3 +7,4 @@ from .exhibit import Exhibit
 from .exhibit_images import ExhibitImage
 from .exhibit_models import ExhibitModel
 from .user import User
+from .user_profile import UserProfile
