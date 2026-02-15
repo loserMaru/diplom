@@ -15,6 +15,8 @@ class MuseumRating(Base):
 
     user: Mapped["User"] = relationship("User", back_populates="ratings")
 
+    museum: Mapped["Museum"] = relationship("Museum", back_populates="ratings")
+
     __table_args__ = (
         UniqueConstraint("user_id", "museum_id"),
         CheckConstraint("rating BETWEEN 1 AND 5"),
