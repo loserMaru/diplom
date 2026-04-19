@@ -37,8 +37,8 @@ async def rate_museum(
         existing.comment = comment
         delta = rating - old_rating
         museum.rating_avg = (
-            (museum.rating_avg * museum.rating_count + delta)
-            / museum.rating_count
+                (museum.rating_avg * museum.rating_count + delta)
+                / museum.rating_count
         )
     else:
         db.add(
@@ -51,8 +51,8 @@ async def rate_museum(
         )
         museum.rating_count += 1
         museum.rating_avg = (
-            (museum.rating_avg * (museum.rating_count - 1) + rating)
-            / museum.rating_count
+                (museum.rating_avg * (museum.rating_count - 1) + rating)
+                / museum.rating_count
         )
 
     await db.commit()
@@ -116,8 +116,35 @@ async def delete_museum_rating(
         museum.rating_avg = 0
     else:
         museum.rating_avg = (
-            (museum.rating_avg * museum.rating_count - rating.rating)
-            / (museum.rating_count - 1)
+                (museum.rating_avg * museum.rating_count - rating.rating)
+                / (museum.rating_count - 1)
+        )
+        museum.rating_count -= 1
+
+    await db.delete(rating)
+    await db.commit()
+
+
+async def delete_any_museum_rating(
+        *,
+        db: AsyncSession,
+        rating_id: int,
+) -> None:
+    rating = await db.get(MuseumRating, rating_id)
+    if not rating:
+        raise HTTPException(status_code=404, detail="Rating not found")
+
+    museum = await db.get(Museum, rating.museum_id)
+    if not museum:
+        raise HTTPException(status_code=404, detail="Museum not found")
+
+    if museum.rating_count <= 1:
+        museum.rating_count = 0
+        museum.rating_avg = 0
+    else:
+        museum.rating_avg = (
+                (museum.rating_avg * museum.rating_count - rating.rating)
+                / (museum.rating_count - 1)
         )
         museum.rating_count -= 1
 
