@@ -90,3 +90,36 @@ async def get_my_museum_ratings(
         )
 
     return ratings
+
+
+async def delete_museum_rating(
+        *,
+        db: AsyncSession,
+        user_id: int,
+        museum_id: int,
+) -> None:
+    museum = await db.get(Museum, museum_id)
+    if not museum:
+        raise HTTPException(status_code=404, detail="Museum not found")
+
+    rating = await db.scalar(
+        select(MuseumRating).where(
+            MuseumRating.user_id == user_id,
+            MuseumRating.museum_id == museum_id,
+        )
+    )
+    if not rating:
+        raise HTTPException(status_code=404, detail="Rating not found")
+
+    if museum.rating_count <= 1:
+        museum.rating_count = 0
+        museum.rating_avg = 0
+    else:
+        museum.rating_avg = (
+            (museum.rating_avg * museum.rating_count - rating.rating)
+            / (museum.rating_count - 1)
+        )
+        museum.rating_count -= 1
+
+    await db.delete(rating)
+    await db.commit()

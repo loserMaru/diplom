@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.deps import get_db, get_current_user
-from app.crud.museum_ratings import rate_museum, get_my_museum_ratings
+from app.crud.museum_ratings import rate_museum, get_my_museum_ratings, delete_museum_rating
 from app.schemas.museum_ratings import MuseumRatingPublic
 
 router = APIRouter(
@@ -35,3 +35,16 @@ async def get_museum_ratings(
         user=Depends(get_current_user),
 ):
     return await get_my_museum_ratings(db=db, user_id=user.id)
+
+
+@router.delete("/{museum_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_museum_rating_endpoint(
+        museum_id: int,
+        db: AsyncSession = Depends(get_db),
+        user=Depends(get_current_user),
+):
+    await delete_museum_rating(
+        db=db,
+        user_id=user.id,
+        museum_id=museum_id,
+    )
