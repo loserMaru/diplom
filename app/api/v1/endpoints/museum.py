@@ -120,7 +120,7 @@ async def get_museum_with_ratings(
         .options(
             selectinload(Museum.audios),
             selectinload(Museum.images),
-            selectinload(Museum.exhibits),
+            selectinload(Museum.exhibits).selectinload(Exhibit.images),
         )
         .where(Museum.id == museum_id)
     )
