@@ -28,27 +28,22 @@ class MuseumPublic(MuseumBase):
     images: list[MuseumImageForMuseum]
     exhibits: list[ExhibitForMuseum]
 
-    rating_avg: float
-    rating_count: int
-    rating_distribution: dict[int, int]
-
     class Config:
         from_attributes = True
 
 
-class MuseumSinglePublic(BaseModel):
-    id: int
-    name: str
-    description: str
-    audios: List[MuseumAudioForMuseum]
-    images: List[MuseumImageForMuseum]
-    exhibits: List[ExhibitForMuseum]
-
+class MuseumWithStats(MuseumPublic):
     rating_avg: float
     rating_count: int
     rating_distribution: dict[int, int]
 
-    ratings: List[MuseumRatingPublic]  # вот отдельная секция с комментариями
+
+class MuseumSinglePublic(MuseumPublic):
+    rating_avg: float
+    rating_count: int
+    rating_distribution: dict[int, int]
+
+    ratings: list[MuseumRatingPublic]
 
     class Config:
         from_attributes = True
